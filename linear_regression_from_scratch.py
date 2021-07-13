@@ -1,40 +1,16 @@
 from sklearn import datasets
 import matplotlib.pyplot as plt
 import numpy as np
-
-class DataLoader:
-    def __init__(self, X, y, batchsize=16):
-        self.batches = []
-        self._get_batches(X, y, batchsize)
-    
-    def __len__(self):
-        return len(self.batches)
-    
-    def __getitem__(self, idx):
-        return self.batches[idx]
-    
-    def _shuffle(self, X, y):
-        """ Shuffles the data before dividing it into batches. """
-        data = np.c_[X, y]
-        np.random.shuffle(data)
-        return data[:, :-1], data[:, -1]
-
-    def _get_batches(self, X, y, batchsize):
-        """ Divides the pair X, y in random batches of batchsize size. """
-        idx = 0
-        X, y = self._shuffle(X, y)
-        while idx < len(X):
-            if idx + batchsize >= len(X):
-                self.batches.append(
-                    (X[idx:],
-                    y[idx:]))
-            else:
-                self.batches.append(
-                    (X[idx:idx+batchsize],
-                    y[idx:idx+batchsize]))
-            idx += batchsize 
+from mini-batch import MiniBatch
 
 class LinearRegression:
+    """
+    Class representing Linear Regression predicting model
+    implemented from scratch.
+    Only accepts numerical features.
+    
+    Methods created to match the ones used by Sci-kit Learn models.
+    """
     def __init__(self, n_features) -> None:
         self.w = np.random.randn(n_features)
         self.b = np.random.randn()
@@ -72,9 +48,9 @@ class LinearRegression:
         """
         mean_loss = []
         for epoch in range(epochs):
-            data_loader = DataLoader(X, y)
+            minibatches = MiniBatch(X, y)
             loss_per_epoch = []
-            for X_batch, y_batch in data_loader:
+            for X_batch, y_batch in minibatches:
                 y_hat = self.predict(X_batch)
                 loss = self._get_MSE(y_hat, y_batch)
                 grad_w, grad_b = self._get_gradients(X_batch, y_batch, y_hat)
