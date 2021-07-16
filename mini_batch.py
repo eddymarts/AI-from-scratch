@@ -14,7 +14,7 @@ class MiniBatch:
     def __getitem__(self, idx):
         return self.batches[idx]
     
-    def _shuffle(self, X, y):
+    def shuffle(self, X, y):
         """ Shuffles the data before dividing it into batches. """
         data = np.c_[X, y]
         np.random.shuffle(data)
@@ -23,7 +23,7 @@ class MiniBatch:
     def _get_batches(self, X, y, batchsize):
         """ Divides the pair X, y in random batches of batchsize size. """
         idx = 0
-        X, y = self._shuffle(X, y)
+        X, y = self.shuffle(X, y)
         while idx < len(X):
             if idx + batchsize >= len(X):
                 self.batches.append(
