@@ -1,4 +1,5 @@
 from sklearn import datasets
+import matplotlib.pyplot as plt
 import numpy as np
 from linear_regression_from_scratch import LinearRegression
 
@@ -20,8 +21,15 @@ X, y = datasets.load_boston(return_X_y=True)
 X_train, X_test, X_val, y_train, y_test, y_val = ScaleSplit(X, y, size=0.2)
 
 linear_model = LinearRegression(n_features=X_train.shape[1])
-linear_model.fit(X_train, y_train, X_val, y_val, print_loss=True)
+loss = linear_model.fit(X_train, y_train, X_val, y_val, return_loss=True)
 linear_model.predict(X_train)
+
+
+# Plots the batch loss vs Validation loss
+plt.plot(loss['training_set'], label="Training set loss")
+plt.plot(loss['validation_set'], label="Validation set loss")
+plt.legend()
+plt.show()
 
 """
 - implement L1 and L2 regularisation in your from-scratch linear regression code

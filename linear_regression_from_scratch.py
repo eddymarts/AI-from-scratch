@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 from mini_batch import MiniBatch
 
@@ -57,9 +56,8 @@ class LinearRegression:
         """
         return np.matmul(X, self.w) + self.b
 
-
     def fit(self, X, y, X_val, y_val, lr = 0.001, epochs=1000,
-            acceptable_error=0.001, print_loss=False):
+            acceptable_error=0.001, return_loss=False):
         """
         Optimises the Linear Regression parameters for the given data.
 
@@ -89,9 +87,6 @@ class LinearRegression:
                 print(f"Validation loss for epoch {epoch} is {mean_validation_loss[-1]}")
                 break
 
-        if print_loss:
-            # Plots the batch loss vs Validation loss
-            plt.plot(mean_loss, label="Minibatch loss")
-            plt.plot(mean_validation_loss, label="Validation loss")
-            plt.legend()
-            plt.show()
+        if return_loss:
+            return {'training_set': mean_loss,
+                    'validation_set': mean_validation_loss}
