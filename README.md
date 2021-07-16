@@ -1,7 +1,6 @@
 # Linear Regression from Scratch
 
 Implementing Machine Learning models from scratch.
-
 Class methods are set to match sci-kit learn models.
 
 ## Models created:
