@@ -13,25 +13,40 @@ class LinearRegression:
         self.w = np.random.randn(n_features)
         self.b = np.random.randn()
 
-    def _get_MSE(self, y_hat, y):
+    def get_loss(self, y_hat, y):
         """
         Gets Mean Squared Error between predictions (y_hat) and actual value (y).
         """
         return np.mean((y_hat - y)**2)
     
-    def _get_validation_loss(self, X_val, y_val):
-        y_hat_val = self.predict(X_val)
-        validation_loss = self._get_MSE(y_hat_val, y_val)
-        return np.mean(validation_loss)
+    def _get_epoch_loss(self, X, y, loss_per_epoch):
+        """
+        Appends actual loss to loss_per_epoch.
+        
+        INPUT:  X -> Numeric matrix with features.
+                y -> Numeric array with labels.
+                loss_per_epoch -> List containing the loss of each epoch.
+        
+        OUTPUT: loss_per_epoch -> Updated list of losses per epoch.
+        """
+        
+        y_hat = self.predict(X)
+        loss = self.get_loss(y_hat, y)
+        loss_per_epoch.append(loss)
+
+        return y_hat, loss_per_epoch
     
     def _get_gradients(self, X, y, y_hat):
         """
         Gets the gradients for the Linear Regression parameters
         when optimising them for the given data.
 
-        INPUTS: X -> Matrix of numerical datapoints.
+        INPUT:  X -> Matrix of numerical datapoints.
                 y -> Target for each row of X.
                 y_hat -> Current linear prediction of each target.
+
+        OUTPUT: grad_w -> Gradient of loss with respect to self.w.
+                grad_b -> Gradient of loss with respect to self.b.
         """
         error = y_hat - y
         grad_w = 2 * np.mean(np.matmul(error, X), axis=0)
@@ -68,19 +83,21 @@ class LinearRegression:
                 epochs -> Number of iterationns of Mini-Batch Gradient Descent.
                         default = 100
         """
-        mean_loss = []
+        mean_training_loss = []
         mean_validation_loss = []
         for epoch in range(epochs):
             minibatches = MiniBatch(X, y)
-            loss_per_epoch = []
+            training_loss_per_epoch = []
             validation_loss_per_epoch = []
             for X_batch, y_batch in minibatches:
-                y_hat = self.predict(X_batch)
-                loss = self._get_MSE(y_hat, y_batch)
+                y_hat, training_loss_per_epoch = self._get_epoch_loss(X_batch, y_batch,
+                                                    training_loss_per_epoch)
+                
+                if len(X_val) and len(y_val):
+                    y_hat_val, validation_loss_per_epoch = self._get_epoch_loss(X_val, y_val,
+                                                        validation_loss_per_epoch)
                 self._update_parameters(lr, X_batch, y_batch, y_hat)
-                loss_per_epoch.append(loss)
-                validation_loss_per_epoch.append(self._get_validation_loss(X_val, y_val))
-            mean_loss.append(np.mean(loss_per_epoch))
+            mean_training_loss.append(np.mean(training_loss_per_epoch))
             mean_validation_loss.append(np.mean(validation_loss_per_epoch))
 
             if epoch > 2 and abs(mean_validation_loss[-2]- mean_validation_loss[-1]) < acceptable_error:
@@ -88,5 +105,5 @@ class LinearRegression:
                 break
 
         if return_loss:
-            return {'training_set': mean_loss,
+            return {'training_set': mean_training_loss,
                     'validation_set': mean_validation_loss}
