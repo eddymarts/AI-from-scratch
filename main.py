@@ -1,21 +1,11 @@
 from sklearn import datasets
 import numpy as np
-from linear_regression_L2_regularised import LinearRegression
-
-np.random.seed(44)
-
-def shuffle(X, y):
-        """ Shuffles the data before dividing it into batches. """
-        data = np.c_[X, y]
-        np.random.shuffle(data)
-        return data[:, :-1], data[:, -1]
+from linear_regression_from_scratch import LinearRegression
 
 def ScaleSplit(X, Y, size):
     from sklearn.model_selection import train_test_split
-    X, Y = shuffle(X, Y)
-
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = size, shuffle=False)
-    X_train, X_val, Y_train, Y_val = train_test_split(X, Y, test_size = size, shuffle=False)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = size, shuffle=True)
+    X_train, X_val, Y_train, Y_val = train_test_split(X, Y, test_size = size, shuffle=True)
     
     from sklearn.preprocessing import StandardScaler
     sc = StandardScaler().fit(X_train)

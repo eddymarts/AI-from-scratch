@@ -38,6 +38,25 @@ class LinearRegression:
         grad_w = 2 * np.mean(np.matmul(error, X), axis=0)
         grad_b = 2 * np.mean(error)
         return grad_w, grad_b
+    
+    def _update_parameters(self, lr, X_batch, y_batch, y_hat):
+        """
+        Updates the parameters of the model by substracting the
+        product of the learning rate and the gradient of the loss
+        with respect to each parameter.
+        """
+        grad_w, grad_b = self._get_gradients(X_batch, y_batch, y_hat)
+        self.w -= lr * grad_w
+        self.b -= lr * grad_b
+
+
+    def predict(self, X):
+        """
+        Predicts the value of an output for each row of X
+        using the fitted Linear Regression model.
+        """
+        return np.matmul(X, self.w) + self.b
+
 
     def fit(self, X, y, X_val, y_val, lr = 0.001, epochs=1000,
             acceptable_error=0.001, print_loss=False):
@@ -60,9 +79,7 @@ class LinearRegression:
             for X_batch, y_batch in minibatches:
                 y_hat = self.predict(X_batch)
                 loss = self._get_MSE(y_hat, y_batch)
-                grad_w, grad_b = self._get_gradients(X_batch, y_batch, y_hat)
-                self.w -= lr * grad_w
-                self.b -= lr * grad_b
+                self._update_parameters(lr, X_batch, y_batch, y_hat)
                 loss_per_epoch.append(loss)
                 validation_loss_per_epoch.append(self._get_validation_loss(X_val, y_val))
             mean_loss.append(np.mean(loss_per_epoch))
@@ -78,11 +95,3 @@ class LinearRegression:
             plt.plot(mean_validation_loss, label="Validation loss")
             plt.legend()
             plt.show()
-
-
-    def predict(self, X):
-        """
-        Predicts the value of an output for each row of X
-        using the fitted Linear Regression model.
-        """
-        return np.matmul(X, self.w) + self.b
