@@ -1,7 +1,7 @@
 from sklearn import datasets
 import matplotlib.pyplot as plt
 import numpy as np
-from linear_regression_from_scratch import LinearRegression
+from regularizations import *
 
 def ScaleSplit(X, Y, size):
     from sklearn.model_selection import train_test_split
@@ -20,7 +20,7 @@ X, y = datasets.load_boston(return_X_y=True)
 
 X_train, X_test, X_val, y_train, y_test, y_val = ScaleSplit(X, y, size=0.2)
 
-linear_model = LinearRegression(n_features=X_train.shape[1])
+linear_model = RidgeRegression(n_features=X_train.shape[1])
 loss = linear_model.fit(X_train, y_train, X_val, y_val, return_loss=True)
 linear_model.predict(X_train)
 
