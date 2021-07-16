@@ -1,13 +1,16 @@
 # Linear Regression from Scratch
 
-Implementing Linear Regression model from scratch.
-It only accepts data with numerical features.
+Implementing Machine Learning models from scratch.
 Class methods are set to match sci-kit learn models.
 
-It consists on:
-1. Randomly initializing the parameters of the linear model.
+## Models created:
+### Regression
+- Linear Regression
+- Lasso Regression
+- Ridge Regression
 
-2. Optimising the parameters with mini-batch gradient descent.
+### Classification
+- Logistic Regression: Work in Progress
 
 
 ## Setting up virtual environment
