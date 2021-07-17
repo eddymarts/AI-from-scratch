@@ -36,7 +36,7 @@ class GridSearch:
     for m_idx, model in enumerate(models):
       loss[model.__name__] = {}
       for p_idx, parameter in enumerate(parameters):
-        p = [parameter.values()][0]
+        p = [p for p in parameter.values()][0]
         loss[model.__name__][p] = self._compare_losses(model, X, y, parameter)
         
         if len(models) > 1:

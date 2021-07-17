@@ -71,8 +71,8 @@ class LinearRegression:
         """
         return np.matmul(X, self.w) + self.b
 
-    def fit(self, X, y, X_val, y_val, lr = 0.001, epochs=1000,
-            acceptable_error=0.001, return_loss=False):
+    def fit(self, X, y, X_val, y_val, lr = 0.001, epochs=1000000,
+            acceptable_error=0.0001, return_loss=False):
         """
         Optimises the Linear Regression parameters for the given data.
 
@@ -84,29 +84,28 @@ class LinearRegression:
                         default = 100
         """
         mean_training_loss = []
-        mean_validation_loss = []
+        validation_loss = []
         for epoch in range(epochs):
             minibatches = MiniBatch(X, y)
             training_loss_per_epoch = []
-            validation_loss_per_epoch = []
             for X_batch, y_batch in minibatches:
                 y_hat, training_loss_per_epoch = self._get_epoch_loss(X_batch, y_batch,
                                                     training_loss_per_epoch)
-                
-                if len(X_val) and len(y_val):
-                    y_hat_val, validation_loss_per_epoch = self._get_epoch_loss(X_val, y_val,
-                                                        validation_loss_per_epoch)
                 self._update_parameters(lr, X_batch, y_batch, y_hat)
+            
             mean_training_loss.append(np.mean(training_loss_per_epoch))
-            mean_validation_loss.append(np.mean(validation_loss_per_epoch))
+            if len(X_val) and len(y_val):
+                y_hat_val, validation_loss_per_epoch = self._get_epoch_loss(X_val, y_val,
+                                                    [])
+                validation_loss.append(validation_loss_per_epoch[0])
 
-            if epoch > 2 and abs(mean_validation_loss[-2]- mean_validation_loss[-1]) < acceptable_error:
-                print(f"Validation loss for epoch {epoch} is {mean_validation_loss[-1]}")
-                break
+                if epoch > 2 and abs(validation_loss[-2]- validation_loss[-1]) < acceptable_error:
+                    print(f"Validation loss for epoch {epoch} is {validation_loss[-1]}")
+                    break
 
         if return_loss:
             return {'training_set': mean_training_loss,
-                    'validation_set': mean_validation_loss}
+                    'validation_set': validation_loss}
 
 class LassoRegression(LinearRegression):
     """
