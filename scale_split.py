@@ -2,7 +2,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 
-def ScaleSplit(X, y, test_size, sets=1, normalize=True, shuffle=True, seed=None):
+def scalesplit(X, y, test_size, sets=1, normalize=True, shuffle=True, seed=None):
     if seed:
         np.random.seed(seed)
 
@@ -23,4 +23,4 @@ def ScaleSplit(X, y, test_size, sets=1, normalize=True, shuffle=True, seed=None)
         for set in range(sets):
             X_sets[set+1] = sc.transform(X_sets[set+1])
 
-    return X_sets
+    return X_sets, y_sets
