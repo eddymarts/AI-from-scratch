@@ -1,4 +1,6 @@
 import numpy as np
+from datetime import datetime
+from pathlib import Path
 from mini_batch import MiniBatch
 
 class LinearRegression:
@@ -62,8 +64,58 @@ class LinearRegression:
         grad_w, grad_b = self._get_gradients(X_batch, y_batch, y_hat)
         self.w -= lr * grad_w
         self.b -= lr * grad_b
+    
+    def _file_for_model(self):
+        """ Returns file path to store parameters of model. """
+        now = datetime.now().strftime("%Y%m%d%H%M%S%f")
+        path = f"./checkpoints/{type(self).__name__}/{now}/"
+        Path(path).mkdir(parents=True, exist_ok=True)
+        return path
+        
+    def save_params(self, file=None, epoch=None, X=None, y=None):
+        """ Saves parameters of model in specified file. """
+        if file is None:
+            file = self._file_for_model() + "params.txt"
+        
+        if not(X is None or y is None):
+            y_hat, loss = self._get_epoch_loss(X, y, [])
+            loss = str(loss[0])
+        else:
+            loss = ""
 
+        if epoch is None:
+            with open(file, "a") as f:
+                f.write(f"w={self.w.tostring()}\nb={self.b.tostring()}")
+        else:
+            with open(file, "a") as f:
+                f.write(f"EPOCH {epoch}\nLoss={loss}\nw={self.w.tobytes()}\nb={self.b.tostring()}\n\n")
 
+    def _get_value(self, model, value, type):
+        """ Gets desired value from models' file. """
+        return [type(val.split("\n")[0]) for val in model.split(f"{value}=")[1:]]
+    
+    def get_best(self, dir, file, adjust=True):
+        """ Get parameters with minimum loss from file. """
+        with open(file, 'r') as f:
+            model = f.read()
+        
+        losses = self._get_value(model, "Loss", float)
+        index = losses.index(min(losses))
+        loss = losses[index]
+        w = self._get_value(model, "w", str)[index]
+        b = self._get_value(model, "b", str)
+
+        print(np.fromstring(w, dtype=float))
+
+        best = dir + "best.txt"
+        
+        # with open(best, "a") as f:
+        #     f.write(f"Loss={loss}\nw={str(w)}\nb={str(b)}\n\n")
+        
+        # if adjust:
+        #     self.w = w
+        #     self.b = w
+        
     def predict(self, X):
         """
         Predicts the value of an output for each row of X
@@ -71,8 +123,8 @@ class LinearRegression:
         """
         return np.matmul(X, self.w) + self.b
 
-    def fit(self, X, y, X_val, y_val, lr = 0.001, epochs=1000000,
-            acceptable_error=0.0001, return_loss=False):
+    def fit(self, X, y, X_val, y_val, lr = 0.001, epochs=1000,
+            acceptable_error=0.001, return_loss=False, save_every_epoch=None):
         """
         Optimises the Linear Regression parameters for the given data.
 
@@ -85,6 +137,11 @@ class LinearRegression:
         """
         mean_training_loss = []
         validation_loss = []
+
+        if not (save_every_epoch is None):
+            dir = self._file_for_model()
+            file = dir + "params.txt"
+
         for epoch in range(epochs):
             minibatches = MiniBatch(X, y)
             training_loss_per_epoch = []
@@ -102,6 +159,13 @@ class LinearRegression:
                 if epoch > 2 and abs(validation_loss[-2]- validation_loss[-1]) < acceptable_error:
                     print(f"Validation loss for epoch {epoch} is {validation_loss[-1]}")
                     break
+            
+            if not (save_every_epoch is None):
+                if epoch % save_every_epoch == 0:
+                    self.save_params(file=file, epoch=epoch, X=X_val, y=y_val)
+
+        if not (save_every_epoch is None):
+            self.get_best(dir, file)
 
         if return_loss:
             return {'training_set': mean_training_loss,
