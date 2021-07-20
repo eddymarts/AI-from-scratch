@@ -8,7 +8,8 @@ X, y = datasets.load_breast_cancer(return_X_y=True)
 X_sets, y_sets = scalesplit(X, y, test_size=0.2)
 
 blr = BinaryLogisticRegression(n_features=X_sets[0].shape[1])
-loss = blr.fit(X_sets[0], y_sets[0], X_sets[1], y_sets[1], return_loss=True, save_every_epoch=None)
+loss = blr.fit(X_sets[0], y_sets[0], X_sets[1], y_sets[1], return_loss=True,
+                epochs=1000000, acceptable_error=0.00001)
 grid_search = GridSearch()
 
 fig, ax = plt.subplots(1, 1, figsize=[10, 5])
