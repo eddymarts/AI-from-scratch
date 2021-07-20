@@ -163,7 +163,9 @@ class LinearRegression:
                                                     [])
                 validation_loss.append(validation_loss_per_epoch[0])
 
-                if epoch > 2 and abs(validation_loss[-2]- validation_loss[-1]) < acceptable_error:
+                if epoch > 2 and (
+                    (abs(validation_loss[-2]- validation_loss[-1])/validation_loss[-1] < acceptable_error)
+                    or (validation_loss[-1] > validation_loss[-2])):
                     print(f"Validation loss for epoch {epoch} is {validation_loss[-1]}")
                     break
             
