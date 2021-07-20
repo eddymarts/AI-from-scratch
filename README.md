@@ -1,4 +1,4 @@
-# Machine Learning from Scratch
+# Machine Learning from scratch
 
 Implementing Machine Learning models from scratch.
 Class methods are set to match sci-kit learn models.
