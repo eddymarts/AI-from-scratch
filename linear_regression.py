@@ -242,3 +242,78 @@ class RidgeRegression(LinearRegression):
         grad_w += 2*self.rf*self.w
 
         return grad_w, grad_b
+
+class BinaryLogisticRegression(LinearRegression):
+    """
+    Class representing Logistic Regression predicting model
+    implemented from the Linear Regression model.
+    Only accepts numerical features.
+    
+    Methods created to match the ones used by Sci-kit Learn models.
+    """
+
+    def __init__(self, n_features) -> None:
+        super().__init__(n_features)
+    
+    def _negative_sigmoid(self, inputs):
+        """ Returns the sigmoid function for negative inputs. """
+        exp = np.exp(inputs)
+        return exp / (exp + 1)
+
+    def _positive_sigmoid(self, inputs):
+        """ Returns the sigmoid function for positive inputs. """
+        return 1 / (1 + np.exp(-inputs))
+
+    def sigmoid(self, inputs):
+        """
+        Returns the sigmoid function of the input.
+        Uses _positive_sigmoid and _negative_sigmoid function depending on the
+        sign of the input to avoid computing an arbitrary small or large number
+        in the process.
+        """
+
+        positive = inputs >= 0
+        # Boolean array inversion is faster than another comparison
+        negative = ~positive
+
+        # empty contains junk hence will be faster to allocate than zeros
+        result = np.empty_like(inputs)
+        result[positive] = self._positive_sigmoid(inputs[positive])
+        result[negative] = self._negative_sigmoid(inputs[negative])
+        return result
+
+    def get_loss(self, y_hat, y):
+        """
+        Gets Binary Cross Entropy between predictions (y_hat) and actual value (y).
+        """
+        return -np.mean(y*np.log(y_hat) + ((1-y)*np.log(1-y_hat)))
+    
+    def _get_gradients(self, X, y, y_hat):
+        """
+        Gets the gradients for the Logistic Regression parameters
+        when optimising them for the given data.
+
+        INPUT:  X -> Matrix of numerical datapoints.
+                y -> Target for each row of X.
+                y_hat -> Current linear prediction of each target.
+
+        OUTPUT: grad_w -> Gradient of loss with respect to self.w.
+                grad_b -> Gradient of loss with respect to self.b.
+        """
+        
+        dldy = -(y*(1/y_hat)-(1-y)*(1/(1-y_hat)))
+        dydz = y_hat*(1-y_hat)/X.shape[0]
+        
+        grad_w = np.matmul(dldy*dydz, X)
+        grad_b = np.dot(dldy, dydz)
+
+        return grad_w, grad_b
+
+    def predict(self, X):
+        """
+        Predicts the value of an output for each row of X
+        using the fitted Logistic Regression model.
+        """
+
+        Z = super().predict(X)
+        return self.sigmoid(Z)
