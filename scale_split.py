@@ -9,11 +9,11 @@ def scalesplit(X, y, test_size, sets=1, normalize=True, shuffle=True, seed=None)
     X_sets = {}
     y_sets = {}
     for set in range(sets):
-        X_train, X_test, y_train, y_test = train_test_split(X, y,
+        X, X_test, y, y_test = train_test_split(X, y,
                                         test_size=test_size, shuffle=shuffle)
-        X_sets[0] = X_train
+        X_sets[0] = X
         X_sets[set+1] = X_test
-        y_sets[0] = y_train
+        y_sets[0] = y
         y_sets[set+1] = y_test
 
     if normalize:
