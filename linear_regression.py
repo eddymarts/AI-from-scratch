@@ -15,11 +15,19 @@ class LinearRegression:
         self.w = np.random.randn(n_features)
         self.b = np.random.randn()
 
-    def get_loss(self, y_hat, y):
+    def get_loss(self, X, y):
         """
-        Gets Mean Squared Error between predictions (y_hat) and actual value (y).
+        Gets Mean Squared Error between predictions of X and actual value (y).
+        
+        INPUT:  X -> Numeric matrix with features.
+                y -> Numeric array with labels.
+        
+        OUTPUT: y_hat -> Predictions of labels of X
+                loss -> Mean Squared Error between predictions and actual labels.
         """
-        return np.mean((y_hat - y)**2)
+
+        y_hat = self.predict(X)
+        return y_hat, np.mean((y_hat - y)**2)
     
     def _get_epoch_loss(self, X, y, loss_per_epoch):
         """
@@ -32,8 +40,7 @@ class LinearRegression:
         OUTPUT: loss_per_epoch -> Updated list of losses per epoch.
         """
         
-        y_hat = self.predict(X)
-        loss = self.get_loss(y_hat, y)
+        y_hat, loss = self.get_loss(X, y)
         loss_per_epoch.append(loss)
 
         return y_hat, loss_per_epoch
@@ -184,11 +191,18 @@ class LassoRegression(LinearRegression):
         self.rf = rf
         super().__init__(n_features)
 
-    def get_loss(self, y_hat, y):
+    def get_loss(self, X, y):
         """
-        Gets Mean Squared Error between predictions (y_hat) and actual value (y).
+        Gets Regularised Mean Squared Error between predictions of X and actual value (y).
+        
+        INPUT:  X -> Numeric matrix with features.
+                y -> Numeric array with labels.
+        
+        OUTPUT: y_hat -> Predictions of labels of X
+                loss -> Regularised Mean Squared Error between predictions and actual labels.
         """
-        return np.mean((y_hat - y)**2) + self.rf*sum(abs(self.w))
+        y_hat = self.predict(X)
+        return y_hat, np.mean((y_hat - y)**2) + self.rf*sum(abs(self.w))
     
     def _get_gradients(self, X, y, y_hat):
         """
@@ -220,11 +234,18 @@ class RidgeRegression(LinearRegression):
         self.rf = rf
         super().__init__(n_features)
 
-    def get_loss(self, y_hat, y):
+    def get_loss(self, X, y):
         """
-        Gets Mean Squared Error between predictions (y_hat) and actual value (y).
+        Gets Regularised Mean Squared Error between predictions of X and actual value (y).
+        
+        INPUT:  X -> Numeric matrix with features.
+                y -> Numeric array with labels.
+        
+        OUTPUT: y_hat -> Predictions of labels of X
+                loss -> Regularised Mean Squared Error between predictions and actual labels.
         """
-        return np.mean((y_hat - y)**2) + self.rf*sum(self.w**2)
+        y_hat = self.predict(X)
+        return y_hat, np.mean((y_hat - y)**2) + self.rf*sum(self.w**2)
     
     def _get_gradients(self, X, y, y_hat):
         """
@@ -282,11 +303,14 @@ class BinaryLogisticRegression(LinearRegression):
         result[negative] = self._negative_sigmoid(inputs[negative])
         return result
 
-    def get_loss(self, y_hat, y):
+    def get_loss(self, X, y):
         """
         Gets Binary Cross Entropy between predictions (y_hat) and actual value (y).
         """
-        return -np.mean(y*np.log(y_hat) + ((1-y)*np.log(1-y_hat)))
+        # y_hat = self.predict(X)
+        # return y_hat, -np.mean(y*np.log(y_hat)+(1-y)*np.log(1-y_hat))
+        Z = super().predict(X)
+        return self.sigmoid(Z), np.mean(np.maximum(Z, 0) - Z*y + np.log(1+np.exp(-abs(Z))))
     
     def _get_gradients(self, X, y, y_hat):
         """
@@ -301,7 +325,7 @@ class BinaryLogisticRegression(LinearRegression):
                 grad_b -> Gradient of loss with respect to self.b.
         """
         
-        dldy = -(y*(1/y_hat)-(1-y)*(1/(1-y_hat)))
+        dldy = -(y/y_hat-(1-y)/(1-y_hat))
         dydz = y_hat*(1-y_hat)/X.shape[0]
         
         grad_w = np.matmul(dldy*dydz, X)
