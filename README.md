@@ -10,7 +10,7 @@ Class methods are set to match sci-kit learn models.
 - Ridge Regression
 
 ### Classification
-- Logistic Regression: Work in Progress
+- Binary Logistic Regression
 
 
 ## Setting up virtual environment
