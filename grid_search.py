@@ -25,7 +25,7 @@ class GridSearch:
     if not(limits is None):
       ax.set_yticks(np.arange(limits[0], limits[1], step=5))
       ax.set_ylim(limits)
-    ax.set(xlabel=f"p={parameter}\nloss={round(loss['validation_set'][-1], 2)}", ylabel=model.__name__)
+    ax.set(xlabel=f"p={parameter}\nl={round(loss['validation_set'][-1], 2)}", ylabel=model.__name__)
     ax.label_outer()
   
   def __call__(self, models, parameters, X, y):
