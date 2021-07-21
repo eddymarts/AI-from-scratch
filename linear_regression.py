@@ -318,7 +318,7 @@ class BinaryLogisticRegression(LinearRegression):
         # y_hat = self.predict(X)
         # return y_hat, -np.mean(y*np.log(y_hat)+(1-y)*np.log(1-y_hat))
         Z = super().predict(X)
-        return self.sigmoid(Z), np.mean(np.mean(np.maximum(Z, 0) - Z*y + np.log(1+np.exp(-abs(Z))), axis=0))
+        return self.sigmoid(Z), sum(np.mean(np.maximum(Z, 0) - Z*y + np.log(1+np.exp(-abs(Z))), axis=0))
     
     def _get_gradients(self, X, y, y_hat):
         """
