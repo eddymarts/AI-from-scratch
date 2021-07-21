@@ -31,7 +31,7 @@ class LinearRegression:
         """
 
         y_hat = self.predict(X)
-        return y_hat, np.mean(np.mean((y_hat - y)**2, axis=0))
+        return y_hat, sum(np.mean((y_hat - y)**2, axis=0))
     
     def _get_epoch_loss(self, X, y, loss_per_epoch):
         """
@@ -68,7 +68,7 @@ class LinearRegression:
             grad_w = 2 * np.transpose(np.matmul(np.transpose(error), X))
         else:
             grad_w = 2 * np.matmul(error, X)
-            
+
         return grad_w, grad_b
     
     def _update_parameters(self, lr, X_batch, y_batch, y_hat):
