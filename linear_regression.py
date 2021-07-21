@@ -31,7 +31,7 @@ class LinearRegression:
         """
 
         y_hat = self.predict(X)
-        return y_hat, sum(np.mean((y_hat - y)**2, axis=0))
+        return y_hat, np.sum(np.mean((y_hat - y)**2, axis=0))
     
     def _get_epoch_loss(self, X, y, loss_per_epoch):
         """
@@ -213,7 +213,7 @@ class LassoRegression(LinearRegression):
                 loss -> Regularised Mean Squared Error between predictions and actual labels.
         """
         y_hat, loss = super().get_loss(X, y)
-        return y_hat, loss + self.rf*np.mean(np.sum(abs(self.w), axis=0))
+        return y_hat, loss + self.rf*np.sum(np.sum(abs(self.w), axis=0))
     
     def _get_gradients(self, X, y, y_hat):
         """
@@ -256,7 +256,7 @@ class RidgeRegression(LinearRegression):
                 loss -> Regularised Mean Squared Error between predictions and actual labels.
         """
         y_hat, loss = super().get_loss(X, y)
-        return y_hat, loss + self.rf*np.mean(np.sum(self.w**2, axis=0))
+        return y_hat, loss + self.rf*np.sum(np.sum(self.w**2, axis=0))
     
     def _get_gradients(self, X, y, y_hat):
         """
@@ -318,7 +318,7 @@ class BinaryLogisticRegression(LinearRegression):
         # y_hat = self.predict(X)
         # return y_hat, -np.mean(y*np.log(y_hat)+(1-y)*np.log(1-y_hat))
         Z = super().predict(X)
-        return self.sigmoid(Z), sum(np.mean(np.maximum(Z, 0) - Z*y + np.log(1+np.exp(-abs(Z))), axis=0))
+        return self.sigmoid(Z), np.sum(np.mean(np.maximum(Z, 0) - Z*y + np.log(1+np.exp(-abs(Z))), axis=0))
     
     def _get_gradients(self, X, y, y_hat):
         """
