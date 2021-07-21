@@ -11,9 +11,20 @@ class LinearRegression:
     
     Methods created to match the ones used by Sci-kit Learn models.
     """
-    def __init__(self, n_features) -> None:
-        self.w = np.random.randn(n_features)
-        self.b = np.random.randn()
+    def __init__(self, n_features, n_labels) -> None:
+        if n_features > 1:
+            if n_labels > 1:
+                self.w = np.random.randn(n_features, n_labels)
+                self.b = np.random.randn(1, n_labels)
+            else:
+                self.w = np.random.randn(n_features)
+                self.b = np.random.randn()
+        elif n_labels > 1:
+                self.w = np.random.randn(1, n_labels)
+                self.b = np.random.randn(1, n_labels)
+        else:
+            self.w = np.random.randn()
+            self.b = np.random.randn()
 
     def get_loss(self, X, y):
         """
@@ -27,7 +38,7 @@ class LinearRegression:
         """
 
         y_hat = self.predict(X)
-        return y_hat, np.mean((y_hat - y)**2)
+        return y_hat, np.mean(np.mean((y_hat - y)**2, axis=0))
     
     def _get_epoch_loss(self, X, y, loss_per_epoch):
         """
@@ -57,9 +68,12 @@ class LinearRegression:
         OUTPUT: grad_w -> Gradient of loss with respect to self.w.
                 grad_b -> Gradient of loss with respect to self.b.
         """
-        error = y_hat - y
-        grad_w = 2 * np.mean(np.matmul(error, X), axis=0)
-        grad_b = 2 * np.mean(error)
+        error = (y_hat - y)/X.shape[0]
+        if len(y.shape) > 1:
+            grad_w = 2 * np.transpose(np.matmul(np.transpose(error), X))
+        else:
+            grad_w = 2 * np.matmul(error, X)
+        grad_b = 2 * np.sum(error, axis=0)
         return grad_w, grad_b
     
     def _update_parameters(self, lr, X_batch, y_batch, y_hat):
@@ -189,9 +203,9 @@ class LassoRegression(LinearRegression):
     Methods created to match the ones used by Sci-kit Learn models.
     """
 
-    def __init__(self, n_features, rf=0.5) -> None:
+    def __init__(self, n_features, n_labels, rf=0.5) -> None:
         self.rf = rf
-        super().__init__(n_features)
+        super().__init__(n_features, n_labels)
 
     def get_loss(self, X, y):
         """
@@ -203,8 +217,8 @@ class LassoRegression(LinearRegression):
         OUTPUT: y_hat -> Predictions of labels of X
                 loss -> Regularised Mean Squared Error between predictions and actual labels.
         """
-        y_hat = self.predict(X)
-        return y_hat, np.mean((y_hat - y)**2) + self.rf*sum(abs(self.w))
+        y_hat, loss = super().get_loss(X, y)
+        return y_hat, loss + self.rf*np.mean(np.sum(abs(self.w), axis=0))
     
     def _get_gradients(self, X, y, y_hat):
         """
@@ -232,9 +246,9 @@ class RidgeRegression(LinearRegression):
     Methods created to match the ones used by Sci-kit Learn models.
     """
 
-    def __init__(self, n_features, rf=0.5) -> None:
+    def __init__(self, n_features, n_labels, rf=0.5) -> None:
         self.rf = rf
-        super().__init__(n_features)
+        super().__init__(n_features, n_labels)
 
     def get_loss(self, X, y):
         """
@@ -246,8 +260,8 @@ class RidgeRegression(LinearRegression):
         OUTPUT: y_hat -> Predictions of labels of X
                 loss -> Regularised Mean Squared Error between predictions and actual labels.
         """
-        y_hat = self.predict(X)
-        return y_hat, np.mean((y_hat - y)**2) + self.rf*sum(self.w**2)
+        y_hat, loss = super().get_loss(X, y)
+        return y_hat, loss + self.rf*np.mean(np.sum(self.w**2, axis=0))
     
     def _get_gradients(self, X, y, y_hat):
         """
@@ -274,9 +288,6 @@ class BinaryLogisticRegression(LinearRegression):
     
     Methods created to match the ones used by Sci-kit Learn models.
     """
-
-    def __init__(self, n_features) -> None:
-        super().__init__(n_features)
     
     def _negative_sigmoid(self, inputs):
         """ Returns the sigmoid function for negative inputs. """
@@ -312,7 +323,7 @@ class BinaryLogisticRegression(LinearRegression):
         # y_hat = self.predict(X)
         # return y_hat, -np.mean(y*np.log(y_hat)+(1-y)*np.log(1-y_hat))
         Z = super().predict(X)
-        return self.sigmoid(Z), np.mean(np.maximum(Z, 0) - Z*y + np.log(1+np.exp(-abs(Z))))
+        return self.sigmoid(Z), np.mean(np.mean(np.maximum(Z, 0) - Z*y + np.log(1+np.exp(-abs(Z))), axis=0))
     
     def _get_gradients(self, X, y, y_hat):
         """
@@ -330,8 +341,12 @@ class BinaryLogisticRegression(LinearRegression):
         dldy = -(y/y_hat-(1-y)/(1-y_hat))
         dydz = y_hat*(1-y_hat)/X.shape[0]
         
-        grad_w = np.matmul(dldy*dydz, X)
-        grad_b = np.dot(dldy, dydz)
+        if len(y.shape) > 1:
+            grad_w = np.transpose(np.matmul(np.transpose(dldy*dydz), X))
+        else:
+            grad_w = np.matmul(dldy*dydz, X)
+            
+        grad_b = np.sum(dldy*dydz, axis=0)
 
         return grad_w, grad_b
 

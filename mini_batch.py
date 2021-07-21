@@ -18,7 +18,11 @@ class MiniBatch:
         """ Shuffles the data before dividing it into batches. """
         data = np.c_[X, y]
         np.random.shuffle(data)
-        return data[:, :-1], data[:, -1]
+        if len(y.shape) > 1:
+            num_y = y.shape[1]
+            return data[:, :-num_y], data[:, -num_y:]
+        else:
+            return data[:, :-1], data[:, -1]
 
     def _get_batches(self, X, y, batchsize):
         """ Divides the pair X, y in random batches of batchsize size. """

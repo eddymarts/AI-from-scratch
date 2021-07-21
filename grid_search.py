@@ -11,13 +11,13 @@ class GridSearch:
     pass
 
   def compare_losses(self, model_class, X, y, parameter):
-    X_sets, y_sets = scalesplit(X, y, test_size=0.2, seed=42)
+    X_sets, y_sets, n_features, n_labels = scalesplit(X, y, test_size=0.2, seed=42)
 
-    model = model_class(n_features=X_sets[0].shape[1], **parameter)
+    model = model_class(n_features=n_features, n_labels=n_labels, **parameter)
     loss = model.fit(X_sets[0], y_sets[0], X_sets[1], y_sets[1], return_loss=True, save_every_epoch=None)
     return loss
 
-  def plot_losses(self, ax, model, parameter, loss, limits=[55,75]):
+  def plot_losses(self, ax, model, parameter, loss, limits=[20,45]):
     ax.plot(
       loss['training_set'], label="Training set loss")
     ax.plot(
