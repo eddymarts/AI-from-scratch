@@ -12,18 +12,11 @@ class LinearRegression:
     Methods created to match the ones used by Sci-kit Learn models.
     """
     def __init__(self, n_features, n_labels) -> None:
-        if n_features > 1:
-            if n_labels > 1:
-                self.w = np.random.randn(n_features, n_labels)
-                self.b = np.random.randn(1, n_labels)
-            else:
-                self.w = np.random.randn(n_features)
-                self.b = np.random.randn()
-        elif n_labels > 1:
-                self.w = np.random.randn(1, n_labels)
-                self.b = np.random.randn(1, n_labels)
+        if n_labels > 1:
+            self.w = np.random.randn(n_features, n_labels)
+            self.b = np.random.randn(1, n_labels)
         else:
-            self.w = np.random.randn()
+            self.w = np.random.randn(n_features)
             self.b = np.random.randn()
 
     def get_loss(self, X, y):
@@ -69,11 +62,13 @@ class LinearRegression:
                 grad_b -> Gradient of loss with respect to self.b.
         """
         error = (y_hat - y)/X.shape[0]
+        grad_b = 2 * np.sum(error, axis=0)
+
         if len(y.shape) > 1:
             grad_w = 2 * np.transpose(np.matmul(np.transpose(error), X))
         else:
             grad_w = 2 * np.matmul(error, X)
-        grad_b = 2 * np.sum(error, axis=0)
+            
         return grad_w, grad_b
     
     def _update_parameters(self, lr, X_batch, y_batch, y_hat):

@@ -6,8 +6,7 @@ from grid_search import GridSearch
 from linear_regression import LinearRegression
 
 X, y = datasets.load_boston(return_X_y=True)
-y_2 = y*2
-y = np.c_[y, y_2]
+y = np.c_[y, y*2]
 
 X_sets, y_sets, n_features, n_labels = scalesplit(X, y, test_size=0.2)
 
