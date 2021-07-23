@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scale_split import scalesplit
 from grid_search import GridSearch
-from linear_regression import BinaryLogisticRegression
+from logistic_regression import BinaryLogisticRegression
 
 X, y = datasets.load_breast_cancer(return_X_y=True)
 X_sets, y_sets, n_features, n_labels = scalesplit(X, y, test_size=0.2)
