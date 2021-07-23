@@ -29,8 +29,8 @@ class LinearRegression:
         OUTPUT: y_hat -> Predictions of labels of X
                 loss -> Mean Squared Error between predictions and actual labels.
         """
-
-        y_hat = self.predict(X)
+        
+        y_hat = self._predict(X)
         return y_hat, np.sum(np.mean((y_hat - y)**2, axis=0))
     
     def _get_epoch_loss(self, X, y, loss_per_epoch):
@@ -132,12 +132,19 @@ class LinearRegression:
         #     self.w = w
         #     self.b = w
         
-    def predict(self, X):
+    def _predict(self, X):
         """
         Predicts the value of an output for each row of X
         using the fitted Linear Regression model.
         """
         return np.matmul(X, self.w) + self.b
+    
+    def predict(self, X):
+        """
+        Mask that allows to process predicted data before returning it
+        in derivated classes.
+        """
+        return self._predict(X)
 
     def fit(self, X, y, X_val, y_val, lr = 0.001, epochs=1000,
             acceptable_error=0.001, return_loss=False, save_every_epoch=None):
@@ -277,7 +284,7 @@ class RidgeRegression(LinearRegression):
 
 class BinaryLogisticRegression(LinearRegression):
     """
-    Class representing Logistic Regression predicting model
+    Class representing Binary Logistic Regression predicting model
     implemented from the Linear Regression model.
     Only accepts numerical features.
     
@@ -285,17 +292,17 @@ class BinaryLogisticRegression(LinearRegression):
     """
     
     def _negative_sigmoid(self, inputs):
-        """ Returns the sigmoid function for negative inputs. """
+        """ Returns the _sigmoid function for negative inputs. """
         exp = np.exp(inputs)
         return exp / (exp + 1)
 
     def _positive_sigmoid(self, inputs):
-        """ Returns the sigmoid function for positive inputs. """
+        """ Returns the _sigmoid function for positive inputs. """
         return 1 / (1 + np.exp(-inputs))
 
-    def sigmoid(self, inputs):
+    def _sigmoid(self, inputs):
         """
-        Returns the sigmoid function of the input.
+        Returns the _sigmoid function of the input.
         Uses _positive_sigmoid and _negative_sigmoid function depending on the
         sign of the input to avoid computing an arbitrary small or large number
         in the process.
@@ -315,10 +322,10 @@ class BinaryLogisticRegression(LinearRegression):
         """
         Gets Binary Cross Entropy between predictions (y_hat) and actual value (y).
         """
-        # y_hat = self.predict(X)
+        # y_hat = self._predict(X)
         # return y_hat, -np.mean(y*np.log(y_hat)+(1-y)*np.log(1-y_hat))
-        Z = super().predict(X)
-        return self.sigmoid(Z), np.sum(np.mean(np.maximum(Z, 0) - Z*y + np.log(1+np.exp(-abs(Z))), axis=0))
+        Z = super()._predict(X)
+        return self._sigmoid(Z), np.sum(np.mean(np.maximum(Z, 0) - Z*y + np.log(1+np.exp(-abs(Z))), axis=0))
     
     def _get_gradients(self, X, y, y_hat):
         """
@@ -345,11 +352,95 @@ class BinaryLogisticRegression(LinearRegression):
 
         return grad_w, grad_b
 
-    def predict(self, X):
+    def _predict(self, X):
         """
         Predicts the value of an output for each row of X
         using the fitted Logistic Regression model.
         """
 
-        Z = super().predict(X)
-        return self.sigmoid(Z)
+        Z = super()._predict(X)
+        return self._sigmoid(Z)
+    
+    def predict(self, X):
+        """ Mask that allows to process predicted data before returning it. """
+        return round(self._predict(X))
+
+class MulticlassLogisticRegression(LinearRegression):
+    """
+    Class representing Multiclass Logistic Regression predicting model
+    implemented from the Linear Regression model.
+    Only accepts numerical features.
+    
+    Methods created to match the ones used by Sci-kit Learn models.
+    """
+    def _softmax(self, inputs):
+        """ Returns the softmax function of the inputs. """
+        exps = np.exp(inputs - np.max(inputs, axis=1))
+        return exps / np.sum(exps, axis=1).reshape(-1, 1)
+
+    def get_loss(self, X, y):
+        """
+        Gets Cross Entropy between predictions (y_hat) and actual value (y).
+        """
+        y_hat = self._predict(X)
+        return y_hat, np.mean(np.sum(-y*np.log(y_hat), axis=1))
+
+    def _get_gradients(self, X, y, y_hat):
+        """
+        Gets the gradients for the Logistic Regression parameters
+        when optimising them for the given data.
+
+        INPUT:  X -> Matrix of numerical datapoints.
+                y -> Target for each row of X.
+                y_hat -> Current linear prediction of each target.
+
+        OUTPUT: grad_w -> Gradient of loss with respect to self.w.
+                grad_b -> Gradient of loss with respect to self.b.
+
+        For reference:
+        https://eli.thegreenplace.net/2016/the-softmax-function-and-its-derivative/
+        https://deepnotes.io/softmax-crossentropy#derivative-of-softmax
+        """
+        grad = y_hat/X.shape[0]
+        grad[:,y] -= 1
+
+        grad_w = np.transpose(np.matmul(np.transpose(grad), X))
+
+        return grad_w, grad
+
+    def _predict(self, X):
+        """
+        Predicts the value of an output for each row of X
+        using the fitted Logistic Regression model.
+        """
+        Z = super()._predict(X)
+        return self._softmax(Z)
+    
+    def predict(self, X):
+        """ Mask that allows to process predicted data before returning it. """
+        return np.argmax(self._predict(X), axis=1)
+
+    def _one_hot(self, y):
+        """ For a categorical array y, returns a matrix of the one-hot encoded data. """
+        one_hot = np.zeros((y.shape[0], np.max(y)+1))
+        one_hot[:, y] = 1
+        return one_hot
+
+    def fit(self, X, y, X_val, y_val, lr=0.001, epochs=1000,
+            acceptable_error=0.001, return_loss=False, save_every_epoch=None):
+        """
+        Optimises the Linear Regression parameters for the given data.
+
+        INPUTS: X -> Matrix of numerical datapoints.
+                y -> Target for each row of X.
+                lr -> Learning Rate of Mini-batch Gradient Descent.
+                        default = 0.001.
+                epochs -> Number of iterationns of Mini-Batch Gradient Descent.
+                        default = 100
+        """
+        y = self._one_hot(y)
+        y_val = self._one_hot(y_val)
+
+        super().fit(X, y, X_val, y_val, lr=lr, epochs=epochs,
+            acceptable_error=acceptable_error, return_loss=return_loss,
+            save_every_epoch=save_every_epoch)
