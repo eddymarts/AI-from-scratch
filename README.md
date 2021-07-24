@@ -11,6 +11,7 @@ Class methods are set to match sci-kit learn models.
 
 ### Classification
 - Binary Logistic Regression
+- Multiclass Logistic Regression
 
 
 ## Setting up virtual environment
