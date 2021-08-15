@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import numpy as np
 
 class LinearRegression(torch.nn.Module):
     def __init__(self, n_features, n_labels):
@@ -36,11 +37,11 @@ class LinearRegression(torch.nn.Module):
                 loss.backward()
                 optimiser.step()
             
-            mean_training_loss.append(torch.mean(training_loss))
+            mean_training_loss.append(np.mean(training_loss))
 
             if len(X_val) and len(y_val):
                 y_hat_val = self(X_val)
-                validation_loss.append(F.mse_loss(y_hat_val, y_val))
+                validation_loss.append(F.mse_loss(y_hat_val, y_val).detach().numpy())
 
                 if epoch > 2 and (
                     (abs(validation_loss[-2]- validation_loss[-1])/validation_loss[-1] < acceptable_error)
@@ -49,5 +50,5 @@ class LinearRegression(torch.nn.Module):
                     break
 
         if return_loss:
-            return {'training_set': mean_training_loss,
-                    'validation_set': validation_loss}
+            return {'training': mean_training_loss,
+                    'validation': validation_loss}
