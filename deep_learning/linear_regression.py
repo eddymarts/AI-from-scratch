@@ -33,7 +33,7 @@ class LinearRegression(torch.nn.Module):
             training_loss = []
             for X_train, y_train in data_load:
                 optimiser.zero_grad()
-                y_hat = self(X_train)
+                y_hat = self.forward(X_train)
                 loss = self.get_loss(y_hat, y_train)
                 training_loss.append(loss.item())
                 loss.backward()
@@ -42,7 +42,7 @@ class LinearRegression(torch.nn.Module):
             mean_training_loss.append(np.mean(training_loss))
 
             if len(X_val) and len(y_val):
-                y_hat_val = self(X_val)
+                y_hat_val = self.forward(X_val)
                 validation_loss.append(self.get_loss(y_hat_val, y_val).detach().numpy())
 
                 if epoch > 2 and (
@@ -55,12 +55,15 @@ class LinearRegression(torch.nn.Module):
             return {'training': mean_training_loss,
                     'validation': validation_loss}
 
-class LogisticRegression(LinearRegression):
+class BinaryLogisticRegression(LinearRegression):
     def __init__(self, n_features, n_labels):
         super().__init__(n_features, n_labels)
         self.layers = torch.nn.Sequential(
             torch.nn.Linear(n_features, n_labels), 
             torch.nn.Sigmoid())
+    
+    def __call__(self, X):
+        return torch.round(self.forward(X))
     
     def get_loss(self, y_hat, y):
         return F.binary_cross_entropy(y_hat, y)
