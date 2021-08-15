@@ -1,7 +1,9 @@
 from dataset import DataSet
 from linear_regression import BinaryLogisticRegression
 from sklearn import datasets
+from sklearn.metrics import *
 from multiprocessing import cpu_count
+import torch
 from torch.utils.data import *
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,8 +19,10 @@ y_val = breast_cancer_data.splits[1].dataset.y
 
 logistic_regressor = BinaryLogisticRegression(breast_cancer_data.n_features, breast_cancer_data.n_labels)
 loss = logistic_regressor.fit(train_load, X_val, y_val, return_loss=True)
-print(y_val, logistic_regressor(X_val))
+y_hat_val = logistic_regressor(X_val)
 
+print(torch.cat((y_val, y_hat_val), dim=1))
+print("R^2 score:", r2_score(y_hat_val.detach().numpy(), y_val.detach().numpy()))
 plt.plot(loss['training'], label="Training set loss")
 plt.plot(loss['validation'], label="Validation set loss")
 plt.xlabel(f"Epochs\nl={loss['validation'][-1]}")
