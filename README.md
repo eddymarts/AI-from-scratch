@@ -14,6 +14,9 @@ Class methods are set to match sci-kit learn models.
 - Multiclass Logistic Regression
 
 ### Neural Networks
+- Neural Network Regression
+- Neural Network Classification
+- Convolutional Neural Networl Classifier
 
 
 ## Setting up virtual environment
