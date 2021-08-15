@@ -54,8 +54,8 @@ class NeuralNetworkClassification(LogisticRegression):
         )
 
 class CNNClassifier(LogisticRegression):
-    def __init__(self, n_features, n_labels):
-        super().__init__(n_features, n_labels)
+    def __init__(self):
+        super().__init__(1, 1)
         self.layers = torch.nn.Sequential(
             torch.nn.Conv2d(1, 10, kernel_size=5),
             torch.nn.MaxPool2d(2),
