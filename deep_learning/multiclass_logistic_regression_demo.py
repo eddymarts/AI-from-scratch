@@ -23,7 +23,7 @@ loss = logistic_regressor.fit(train_load, X_val, y_val, return_loss=True,
                             epochs=1000, acceptable_error=0.0001, lr=0.001)
 y_hat_val = logistic_regressor(X_val)
 print(torch.cat((y_val, y_hat_val), dim=1))
-print("R^2 score:", r2_score(y_hat_val.detach().numpy(), y))
+print("R^2 score:", r2_score(y_hat_val.detach().numpy(), y_val.detach().numpy()))
 plt.plot(loss['training'], label="Training set loss")
 plt.plot(loss['validation'], label="Validation set loss")
 plt.xlabel(f"Epochs\nl={loss['validation'][-1]}")
