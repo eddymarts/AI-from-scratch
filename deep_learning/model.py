@@ -24,7 +24,7 @@ class NeuralNetwork(torch.nn.Module):
         """
         return self.layers(X)
 
-    def fit(self, train_load, test_load=None, X_val=None, y_val=None, lr = 0.001, epochs=1000,
+    def fit(self, train_load, test_load=None, lr = 0.001, epochs=1000,
             acceptable_error=0.001, return_loss=False, save_every_epoch=None):
         """
         Optimises the model parameters for the given data.
@@ -52,16 +52,6 @@ class NeuralNetwork(torch.nn.Module):
                 optimiser.step()
             
             mean_training_loss.append(np.mean(training_loss))
-
-            # if X_val and y_val:
-            #     y_hat_val = self.forward(X_val)
-            #     validation_loss.append(self.get_loss(y_hat_val, y_val).detach().numpy())
-
-            #     if epoch > 2 and (
-            #         (abs(validation_loss[-2]- validation_loss[-1])/validation_loss[-1] < acceptable_error)
-            #         or (validation_loss[-1] > validation_loss[-2])):
-            #         print(f"Validation train_loss for epoch {epoch} is {validation_loss[-1]}")
-            #         break
             
             if test_load:
                 validation_loss = []
@@ -81,3 +71,18 @@ class NeuralNetwork(torch.nn.Module):
         if return_loss:
             return {'training': mean_training_loss,
                     'validation': validation_loss}
+        
+    def predict(self, data_load, return_y=False):
+        self.eval()
+        for idx, (X_val, y_val) in enumerate(data_load):
+            if idx == 0:
+                y_hat_val = self(X_val)
+                y_label = y_val
+            else:
+                y_hat_val = torch.cat((y_hat_val, self(X_val)), dim=0)
+                y_label = torch.cat((y_label, y_val), dim=0)
+        
+        if return_y:
+            return y_label.reshape(-1, 1), y_hat_val
+        else:
+            return y_hat_val
