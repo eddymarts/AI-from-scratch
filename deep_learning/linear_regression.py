@@ -5,11 +5,10 @@ import numpy as np
 class LinearRegression(torch.nn.Module):
     def __init__(self, n_features, n_labels):
         super().__init__()
-        self.linear_layer = torch.nn.Linear(n_features, n_labels)
+        self.layers = torch.nn.Linear(n_features, n_labels)
         
-    
     def forward(self, X):
-        return self.linear_layer(X)
+        return self.layers(X)
 
     def fit(self, data_load,  X_val, y_val, lr = 0.001, epochs=1000,
             acceptable_error=0.001, return_loss=False, save_every_epoch=None):
