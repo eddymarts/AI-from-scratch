@@ -5,7 +5,8 @@ class DataSet(Dataset):
   """
   Class that implements torch.utils.data.Dataset
   """
-  def __init__(self, X, y, normalize=False, split=False, seed=None):
+  def __init__(self, X, y, one_hot_target=False,
+              normalize=False, split=False, seed=None):
     super().__init__()
 
     if len(X.shape) > 1:
@@ -25,6 +26,9 @@ class DataSet(Dataset):
     self.mean = torch.mean(self.X, axis=0)
     self.std = torch.std(self.X, axis=0)
 
+    if one_hot_target:
+      self.y_oh = self.one_hot(self.y)
+
     if normalize:
       self.normalize()
 
@@ -36,6 +40,14 @@ class DataSet(Dataset):
 
   def __len__(self):
       return len(self.X)
+  
+  def one_hot(self, y):
+    """ For a categorical array y, returns a matrix of the one-hot encoded data. """
+    m = y.shape[0]
+    y = y.long()
+    onehot = torch.zeros((m, int(torch.max(y)+1)))
+    onehot[range(m), y] = 1
+    return onehot
 
   def normalize(self, data=None):
     if data == None:
