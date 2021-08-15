@@ -1,5 +1,5 @@
 import torch
-from linear_regression import LinearRegression
+from linear_models import LinearRegression
 
 class NeuralNetworkRegression(LinearRegression):
     def __init__(self, n_features, n_labels):

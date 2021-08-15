@@ -1,5 +1,5 @@
 from dataset import DataSet
-from linear_regression import LinearRegression
+from linear_models import LinearRegression
 from sklearn import datasets
 from sklearn.metrics import *
 from multiprocessing import cpu_count

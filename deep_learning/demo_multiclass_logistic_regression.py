@@ -1,5 +1,5 @@
 from dataset import DataSet
-from linear_regression import LogisticRegression
+from linear_models import LogisticRegression
 from sklearn import datasets
 from multiprocessing import cpu_count
 import torch
