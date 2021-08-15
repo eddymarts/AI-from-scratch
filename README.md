@@ -1,6 +1,6 @@
-# Machine Learning from scratch
+# Artificial Intelligence from scratch
 
-Implementing Machine Learning models from scratch.
+Implementing Machine Learning and Deep Learning models from scratch.
 Class methods are set to match sci-kit learn models.
 
 ## Models created:
@@ -12,6 +12,8 @@ Class methods are set to match sci-kit learn models.
 ### Classification
 - Binary Logistic Regression
 - Multiclass Logistic Regression
+
+### Neural Networks
 
 
 ## Setting up virtual environment
