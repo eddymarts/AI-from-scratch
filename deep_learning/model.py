@@ -35,6 +35,7 @@ class NeuralNetwork(torch.nn.Module):
                 epochs -> Number of iterationns of Mini-Batch Gradient Descent.
                         default = 100
         """
+        self.train()
         optimiser = torch.optim.SGD(self.parameters(), lr=lr)
 
         mean_training_loss = []
@@ -61,7 +62,8 @@ class NeuralNetwork(torch.nn.Module):
                     or (validation_loss[-1] > validation_loss[-2])):
                     print(f"Validation loss for epoch {epoch} is {validation_loss[-1]}")
                     break
-
+        self.eval()
+        
         if return_loss:
             return {'training': mean_training_loss,
                     'validation': validation_loss}
