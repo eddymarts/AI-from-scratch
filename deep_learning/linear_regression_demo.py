@@ -1,7 +1,9 @@
 from dataset import DataSet
 from linear_regression import LinearRegression
 from sklearn import datasets
+from sklearn.metrics import *
 from multiprocessing import cpu_count
+import torch
 from torch.utils.data import *
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,6 +20,9 @@ y_val = boston_data.splits[1].dataset.y
 linear_regressor = LinearRegression(boston_data.n_features, boston_data.n_labels)
 loss = linear_regressor.fit(train_load, X_val, y_val, return_loss=True)
 
+y_hat_val = linear_regressor(X_val)
+print(torch.cat((y_val, y_hat_val), dim=1))
+print("R^2 score:", r2_score(y_hat_val.detach().numpy(), y))
 plt.plot(loss['training'], label="Training set loss")
 plt.plot(loss['validation'], label="Validation set loss")
 plt.xlabel(f"Epochs\nl={loss['validation'][-1]}")
