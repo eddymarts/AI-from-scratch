@@ -133,4 +133,4 @@ checkpoints/
 *.txt
 
 # Datasets
-*_data
+*datasets/
