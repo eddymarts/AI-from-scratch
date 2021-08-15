@@ -73,6 +73,14 @@ class NeuralNetwork(torch.nn.Module):
                     'validation': validation_loss}
         
     def predict(self, data_load, return_y=False):
+        """
+        Predicts the value of an output for each row of X
+        using the fitted model.
+
+        X is the data from data_load (DataLoader object).
+
+        Returns the predictions.
+        """
         self.eval()
         for idx, (X_val, y_val) in enumerate(data_load):
             if idx == 0:
