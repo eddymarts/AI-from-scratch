@@ -24,7 +24,7 @@ class NeuralNetwork(torch.nn.Module):
         """
         return self.layers(X)
 
-    def fit(self, data_load,  X_val, y_val, lr = 0.001, epochs=1000,
+    def fit(self, data_load,  X_val=None, y_val=None, lr = 0.001, epochs=1000,
             acceptable_error=0.001, return_loss=False, save_every_epoch=None):
         """
         Optimises the model parameters for the given data.
@@ -53,7 +53,7 @@ class NeuralNetwork(torch.nn.Module):
             
             mean_training_loss.append(np.mean(training_loss))
 
-            if len(X_val) and len(y_val):
+            if X_val and y_val:
                 y_hat_val = self.forward(X_val)
                 validation_loss.append(self.get_loss(y_hat_val, y_val).detach().numpy())
 
