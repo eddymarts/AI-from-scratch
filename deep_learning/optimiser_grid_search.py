@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 
+torch.manual_seed(42)
 mnist_train = datasets.MNIST(root="datasets/mnist_train",
                              download=True, train=True,
                              transform=transforms.Compose([transforms.ToTensor(),
