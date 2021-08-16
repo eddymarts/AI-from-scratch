@@ -67,4 +67,4 @@ for ax, model in zip(axs, loss.keys()):
     ax.plot(loss[model]['validation'], label="Validation set loss")
     ax.set(xlabel=f"Epochs\nl={loss[model]['validation'][-1]}\n{model}", ylabel="CE")
 
-fig.show()
+plt.show()
