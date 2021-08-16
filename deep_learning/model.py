@@ -71,7 +71,7 @@ class NeuralNetwork(torch.nn.Module):
 
         if return_loss:
             return {'training': mean_training_loss,
-                    'validation': validation_loss}
+                    'validation': mean_validation_loss}
         
     def predict(self, data_load, return_y=False):
         """
