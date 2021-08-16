@@ -24,7 +24,7 @@ class NeuralNetwork(torch.nn.Module):
         """
         return self.layers(X)
 
-    def fit(self, train_load, test_load=None, lr = 0.001, epochs=1000,
+    def fit(self, train_load, test_load=None, optimiser=None, lr = 0.001, epochs=1000,
             acceptable_error=0.001, return_loss=False, save_every_epoch=None):
         """
         Optimises the model parameters for the given data.
@@ -35,7 +35,8 @@ class NeuralNetwork(torch.nn.Module):
                 epochs -> Number of iterationns of Mini-Batch Gradient Descent.
                         default = 100
         """
-        optimiser = torch.optim.SGD(self.parameters(), lr=lr)
+        if optimiser==None:
+            optimiser = torch.optim.SGD(self.parameters(), lr=lr)
 
         mean_training_loss = []
         mean_validation_loss = []
