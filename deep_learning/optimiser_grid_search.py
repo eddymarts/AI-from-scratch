@@ -60,7 +60,7 @@ for model in loss.keys():
     print(torch.cat((y_val[model], y_hat_val[model]), dim=1)[0:10])
     print("R^2 score:", r2_score(y_hat_val[model].detach().numpy(), y_val[model].detach().numpy()))
 
-fig, axs = plt.subplot(1, 4)
+fig, axs = plt.subplots(1, 4)
 
 for ax, model in zip(axs, loss.keys()):
     ax.plot(loss[model]['training'], label="Training set loss")
