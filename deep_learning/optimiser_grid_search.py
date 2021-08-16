@@ -48,11 +48,11 @@ loss = {}
 y_val = {}
 y_hat_val={}
 for model in models.keys():
-    loss[model] = model.fit(train_load, test_load, return_loss=True,
+    loss[model] = models[model].fit(train_load, test_load, return_loss=True,
                             optimiser=optimisers[model],
                             epochs=10, acceptable_error=0.0001, lr=0.01)
 
-    y_val[model], y_hat_val[model] = model.predict(test_load, return_y=True)
+    y_val[model], y_hat_val[model] = models[model].predict(test_load, return_y=True)
 
 fig, axs = plt.subplot(1, 4)
 
