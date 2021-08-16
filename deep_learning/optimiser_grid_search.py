@@ -54,13 +54,15 @@ for model in models.keys():
 
     y_val[model], y_hat_val[model] = model.predict(test_load, return_y=True)
 
+fig, axs = plt.subplot(1, 4)
 
+for ax, model in zip(axs, loss.keys()):
+    ax.plot(loss[model]['training'], label="Training set loss")
+    ax.plot(loss[model]['validation'], label="Validation set loss")
+    ax.set(xlabel=f"Epochs\nl={loss[model]['validation'][-1]}\n{model}", ylabel="CE")
+    ax.legend()
+    print(model)
+    print(torch.cat((y_val[model], y_hat_val[model]), dim=1)[0:10])
+    print("R^2 score:", r2_score(y_hat_val[model].detach().numpy(), y_val[model].detach().numpy()))
 
-print(torch.cat((y_val, y_hat_val), dim=1)[0:10])
-print("R^2 score:", r2_score(y_hat_val.detach().numpy(), y_val.detach().numpy()))
-plt.plot(loss['training'], label="Training set loss")
-plt.plot(loss['validation'], label="Validation set loss")
-plt.xlabel(f"Epochs\nl={loss['validation'][-1]}")
-plt.ylabel("CE")
-plt.legend()
-plt.show()
+fig.show()
