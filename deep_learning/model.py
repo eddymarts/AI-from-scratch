@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
+from torch.utils.tensorboard import SummaryWriter
 
 class NeuralNetwork(torch.nn.Module):
     """
@@ -25,7 +26,7 @@ class NeuralNetwork(torch.nn.Module):
         return self.layers(X)
 
     def fit(self, train_load, test_load=None, optimiser=None, lr = 0.001, epochs=1000,
-            acceptable_error=0.001, return_loss=False, save_every_epoch=None):
+            acceptable_error=0.001, return_loss=False):
         """
         Optimises the model parameters for the given data.
 
@@ -35,10 +36,13 @@ class NeuralNetwork(torch.nn.Module):
                 epochs -> Number of iterationns of Mini-Batch Gradient Descent.
                         default = 100
         """
+
         if optimiser==None:
             optimiser = torch.optim.SGD(self.parameters(), lr=lr)
 
-        mean_training_loss = []
+        writer = SummaryWriter()
+
+        mean_train_loss = []
         mean_validation_loss = []
 
         for epoch in range(epochs):
@@ -52,7 +56,8 @@ class NeuralNetwork(torch.nn.Module):
                 train_loss.backward()
                 optimiser.step()
             
-            mean_training_loss.append(np.mean(training_loss))
+            mean_train_loss.append(np.mean(training_loss))
+            writer.add_scalar("./loss/train", mean_train_loss[-1], epoch)
             
             if test_load:
                 validation_loss = []
@@ -62,13 +67,15 @@ class NeuralNetwork(torch.nn.Module):
                     val_loss = self.get_loss(y_hat_val, y_val)
                     validation_loss.append(val_loss.item())
                 mean_validation_loss.append(np.mean(validation_loss))
+                writer.add_scalar("./loss/validation", mean_validation_loss[-1], epoch)
 
                 if epoch > 2 and (
                     (abs(mean_validation_loss[-2]- mean_validation_loss[-1])/mean_validation_loss[-1] < acceptable_error)
                     or (mean_validation_loss[-1] > mean_validation_loss[-2])):
                     print(f"Validation train_loss for epoch {epoch} is {mean_validation_loss[-1]}")
                     break
-
+        
+        writer.close()
         if return_loss:
             return {'training': mean_training_loss,
                     'validation': mean_validation_loss}
