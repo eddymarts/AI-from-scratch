@@ -138,3 +138,6 @@ checkpoints/
 
 # Tensorboard
 *runs/
+
+# Ignores work in progress
+*properties*
