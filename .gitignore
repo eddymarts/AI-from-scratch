@@ -135,3 +135,6 @@ checkpoints/
 # Datasets
 *datasets/
 *.csv
+
+# Tensorboard
+*runs/
